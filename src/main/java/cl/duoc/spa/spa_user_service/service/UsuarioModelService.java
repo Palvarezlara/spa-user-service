@@ -17,7 +17,6 @@ import java.util.List;
 public class UsuarioModelService {
     private final IUsuarioModelRepository usuarioRepository;
 
-
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // ========================================

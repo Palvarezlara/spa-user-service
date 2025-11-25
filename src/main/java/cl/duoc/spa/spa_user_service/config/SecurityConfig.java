@@ -30,9 +30,7 @@ public class SecurityConfig {
                         // Cualquier otra ruta, si la hubiera, requiere autenticación
                         .anyRequest().authenticated()
                 )
-
                 .formLogin(AbstractHttpConfigurer::disable)
-
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
