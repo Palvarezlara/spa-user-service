@@ -1,5 +1,6 @@
 package cl.duoc.spa.spa_user_service.controller;
 
+import cl.duoc.spa.spa_user_service.dto.LoginRequest;
 import cl.duoc.spa.spa_user_service.dto.RegisterRequest;
 import cl.duoc.spa.spa_user_service.dto.UpdateUsuarioRequest;
 import cl.duoc.spa.spa_user_service.dto.UsuarioResponse;
@@ -14,7 +15,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
-@CrossOrigin(origins = "*")
 public class UsuarioModelController {
     private final UsuarioModelService usuarioService;
 
@@ -24,6 +24,12 @@ public class UsuarioModelController {
         return ResponseEntity.ok(usuarioService.register(request));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(
+                usuarioService.login(request.email(), request.password())
+        );
+    }
     // Listar todos (para panel admin)
     @GetMapping
     public ResponseEntity<List<UsuarioResponse>> getAll() {

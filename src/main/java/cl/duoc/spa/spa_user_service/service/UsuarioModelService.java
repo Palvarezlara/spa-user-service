@@ -17,7 +17,7 @@ import java.util.List;
 public class UsuarioModelService {
     private final IUsuarioModelRepository usuarioRepository;
 
-    // Podrías inyectarlo como bean, pero para simplificar lo instanciamos aquí
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // ========================================
@@ -46,6 +46,24 @@ public class UsuarioModelService {
     }
 
     // ========================================
+    // Login sin JWT
+    // ========================================
+    public UsuarioResponse login(String email, String password) {
+        UsuarioModel usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(password, usuario.getPasswordHash())) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        if (usuario.getEstado() == UsuarioModel.EstadoUsuario.BLOQUEADO) {
+            throw new RuntimeException("Usuario bloqueado");
+        }
+
+        return toResponse(usuario);
+    }
+
+    // ========================================
     // CRUD básico
     // ========================================
     public List<UsuarioResponse> findAll() {
@@ -66,12 +84,12 @@ public class UsuarioModelService {
         UsuarioModel usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        usuario.setNombres(request.nombres());
-        usuario.setApellidos(request.apellidos());
-        usuario.setTelefono(request.telefono());
-        usuario.setRegion(request.region());
-        usuario.setComuna(request.comuna());
-        usuario.setFechaNacimiento(request.fechaNacimiento());
+        if (request.nombres() != null) usuario.setNombres(request.nombres());
+        if (request.apellidos() != null) usuario.setApellidos(request.apellidos());
+        if (request.telefono() != null) usuario.setTelefono(request.telefono());
+        if (request.region() != null) usuario.setRegion(request.region());
+        if (request.comuna() != null) usuario.setComuna(request.comuna());
+        if (request.fechaNacimiento() != null) usuario.setFechaNacimiento(request.fechaNacimiento());
 
         UsuarioModel saved = usuarioRepository.save(usuario);
         return toResponse(saved);
@@ -79,6 +97,9 @@ public class UsuarioModelService {
 
     @Transactional
     public void delete(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
         usuarioRepository.deleteById(id);
     }
 

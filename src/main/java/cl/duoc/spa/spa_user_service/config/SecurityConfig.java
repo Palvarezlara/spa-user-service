@@ -16,7 +16,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // Para no pelear con tokens ni sesiones por ahora
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Swagger abierto
@@ -25,14 +25,14 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api-docs/**"
                         ).permitAll()
-                        // Endpoints de tu API de usuarios abiertos por ahora
+                        // Endpoints de laAPI de usuarios abiertos por ahora
                         .requestMatchers("/api/v1/users/**").permitAll()
                         // Cualquier otra ruta, si la hubiera, requiere autenticación
                         .anyRequest().authenticated()
                 )
-                // Desactivamos el formulario de login por defecto
+
                 .formLogin(AbstractHttpConfigurer::disable)
-                // Dejamos HTTP Basic por si luego quieres probar algo rápido con Postman
+
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
