@@ -1,5 +1,6 @@
 package cl.duoc.spa.spa_user_service.service;
 
+import cl.duoc.spa.spa_user_service.dto.AuthResponse;
 import cl.duoc.spa.spa_user_service.dto.RegisterRequest;
 import cl.duoc.spa.spa_user_service.dto.UpdateUsuarioRequest;
 import cl.duoc.spa.spa_user_service.dto.UsuarioResponse;
@@ -23,11 +24,13 @@ public class UsuarioModelService {
     // Registro
     // ========================================
     @Transactional
-    public UsuarioResponse register(RegisterRequest request) {
-        if (usuarioRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("El correo ya está registrado.");
-        }
+    public AuthResponse register(RegisterRequest request) {
 
+        // 1) validar duplicado por email
+        if (usuarioRepository.existsByEmail(request.email())) {
+            throw new RuntimeException("El correo ya está registrado");
+        }
+        // 2) crear entidad
         UsuarioModel usuario = new UsuarioModel();
         usuario.setNombres(request.nombres());
         usuario.setApellidos(request.apellidos());
@@ -38,16 +41,31 @@ public class UsuarioModelService {
         usuario.setComuna(request.comuna());
         usuario.setFechaNacimiento(request.fechaNacimiento());
 
-        // rol y estado se setean por defecto en @PrePersist del modelo
+        // 3) guardar
+        usuarioRepository.save(usuario);
 
-        UsuarioModel saved = usuarioRepository.save(usuario);
-        return toResponse(saved);
+        // 4) responder con los 11 campos
+        return new AuthResponse(
+                true,
+                "Registro exitoso",
+                usuario.getId(),
+                usuario.getNombres(),
+                usuario.getApellidos(),
+                usuario.getEmail(),
+                usuario.getTelefono(),
+                usuario.getRegion(),
+                usuario.getComuna(),
+                usuario.getRol(),
+                usuario.getEstado()
+        );
     }
+
 
     // ========================================
     // Login sin JWT
     // ========================================
-    public UsuarioResponse login(String email, String password) {
+    public AuthResponse login(String email, String password) {
+
         UsuarioModel usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -59,8 +77,21 @@ public class UsuarioModelService {
             throw new RuntimeException("Usuario bloqueado");
         }
 
-        return toResponse(usuario);
+        return new AuthResponse(
+                true,
+                "Login exitoso",
+                usuario.getId(),
+                usuario.getNombres(),
+                usuario.getApellidos(),
+                usuario.getEmail(),
+                usuario.getTelefono(),
+                usuario.getRegion(),
+                usuario.getComuna(),
+                usuario.getRol(),
+                usuario.getEstado()
+        );
     }
+
 
     // ========================================
     // CRUD básico

@@ -1,9 +1,6 @@
 package cl.duoc.spa.spa_user_service.controller;
 
-import cl.duoc.spa.spa_user_service.dto.LoginRequest;
-import cl.duoc.spa.spa_user_service.dto.RegisterRequest;
-import cl.duoc.spa.spa_user_service.dto.UpdateUsuarioRequest;
-import cl.duoc.spa.spa_user_service.dto.UsuarioResponse;
+import cl.duoc.spa.spa_user_service.dto.*;
 import cl.duoc.spa.spa_user_service.model.UsuarioModel;
 import cl.duoc.spa.spa_user_service.service.UsuarioModelService;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +17,12 @@ public class UsuarioModelController {
 
     // Registro público
     @PostMapping("/register")
-    public ResponseEntity<UsuarioResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(usuarioService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UsuarioResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(
                 usuarioService.login(request.email(), request.password())
         );
