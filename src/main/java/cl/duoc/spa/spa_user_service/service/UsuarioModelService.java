@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @Service
@@ -120,6 +122,19 @@ public class UsuarioModelService {
         if (request.region() != null) usuario.setRegion(request.region());
         if (request.comuna() != null) usuario.setComuna(request.comuna());
         if (request.fechaNacimiento() != null) usuario.setFechaNacimiento(request.fechaNacimiento());
+
+        if (request.fechaNacimiento() != null) {
+            LocalDate hoy = LocalDate.now();
+            int edad = Period.between(request.fechaNacimiento(), hoy).getYears();
+
+            if (edad < 18) {
+
+                throw new IllegalArgumentException("El usuario debe ser mayor de 18 años");
+            }
+
+            usuario.setFechaNacimiento(request.fechaNacimiento());
+        }
+
 
         UsuarioModel saved = usuarioRepository.save(usuario);
         return toResponse(saved);
